@@ -1,0 +1,77 @@
+﻿using SkunkWorks.Thraxus.Common.Enums;
+using SkunkWorks.Thraxus.Settings;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Utils;
+
+namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
+{
+	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, priority: int.MinValue)]
+	internal class StaticLog : MySessionComponentBase
+	{
+		private const string GeneralLogName = ModSettings.StaticGeneralLogName;
+		private const string ExceptionLogName = ModSettings.ExceptionLogName;
+
+		private static Log _generalLog;
+		private static Log _exceptionLog;
+
+		private static readonly object GeneralWriteLocker = new object();
+		private static readonly object ExceptionWriteLocker = new object();
+		
+		/// <inheritdoc />
+		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
+		{
+			base.Init(sessionComponent);
+			_exceptionLog = new Log(ExceptionLogName);
+			_generalLog = new Log(GeneralLogName);
+			WriteToLog("StaticLogger", "Static logs loaded.", LogType.General);
+		}
+
+		/// <inheritdoc />
+		protected override void UnloadData()
+		{
+			WriteToLog("StaticLogger", "Closing static logs.", LogType.General);
+			lock (ExceptionWriteLocker)
+			{
+				_exceptionLog?.Close();
+			}
+			lock (GeneralWriteLocker)
+			{
+				_generalLog?.Close();
+			}
+			base.UnloadData();
+		}
+
+		public static void WriteToLog(string caller, string message, LogType type, bool showOnHud = false, int duration = ModSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		{
+			switch (type)
+			{
+				case LogType.Exception:
+					WriteException(caller, message, showOnHud, duration, color);
+					return;
+				case LogType.General:
+					WriteGeneral(caller, message, showOnHud, duration, color);
+					return;
+				default:
+					return;
+			}
+		}
+
+		private static void WriteException(string caller, string message, bool showOnHud, int duration, string color)
+		{
+			lock (ExceptionWriteLocker)
+			{
+				_exceptionLog?.WriteToLog(caller, message, showOnHud, duration, color);
+				MyLog.Default.WriteLine($"{caller}: {message}");
+			}
+		}
+
+		private static void WriteGeneral(string caller, string message, bool showOnHud, int duration, string color)
+		{
+			lock (GeneralWriteLocker)
+			{
+				_generalLog?.WriteToLog(caller, message);
+			}
+		}
+	}
+}
