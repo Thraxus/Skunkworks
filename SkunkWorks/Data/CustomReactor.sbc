@@ -43,7 +43,7 @@
         <Model BuildPercentUpperBound="0.83" File="Models\Cubes\Large\GeneratorLargeConstruction_4.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\GeneratorLargeConstruction_5.mwm" />
       </BuildProgressModels>
-      <BlockPairName>LargeReactor</BlockPairName>
+      <BlockPairName>ThraxusReactor</BlockPairName>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
@@ -85,10 +85,7 @@
   </BlockPositions>
 
   <BlockVariantGroup>
-    <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="ThraxusCustoms" />
-    <Icon>Textures\GUI\Icons\Cubes\nuclear_reactor.dds</Icon>
-    <DisplayName>Thraxus Custom Blocks</DisplayName>
-    <Description>Thraxus made me... Jealous?</Description>
+    <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="EnergyFueledGroup" />
     <Blocks>
       <Block Type="MyObjectBuilder_Reactor" Subtype="ThraxusCustomReactor" />
     </Blocks>
@@ -102,10 +99,6 @@
       </Id>
       <DisplayName>Thraxus</DisplayName>
       <Name>Thraxus Custom Blocks</Name>
-      <SearchBlocks>false</SearchBlocks>
-      <IsShipCategory>true</IsShipCategory>
-      <IsBlockCategory>true</IsBlockCategory>
-      <IsToolCategory>false</IsToolCategory>
       <ItemIds>
         <string>Reactor/ThraxusCustomReactor</string>
       </ItemIds>
@@ -124,6 +117,10 @@
       <InputConstraintIcon>Textures\GUI\Icons\filter_ingot.dds</InputConstraintIcon>
     </Class>
   </BlueprintClasses>
+
+  <BlueprintClassEntries>
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="Reactor/ThraxusCustomReactor" />
+  </BlueprintClassEntries>
 
   <ResearchGroups>
     <ResearchGroup xsi:type="ResearchGroup">

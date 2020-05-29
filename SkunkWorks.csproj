@@ -14,7 +14,7 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup>
-   <LangVersion>6</LangVersion>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -198,6 +198,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SkunkWorks\Data\CustomReactor.sbc" />
+    <None Include="SkunkWorks\Data\MA_O2_BlockCategories.sbc" />
+    <None Include="SkunkWorks\Data\MA_O2_Cubeblocks.sbc" />
+    <None Include="SkunkWorks\Models\MA_at_upgrade_energy.mwm" />
+    <None Include="SkunkWorks\Models\MA_O2.mwm" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Helpers\" />

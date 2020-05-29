@@ -1,0 +1,18 @@
+<?xml version="1.0"  encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CategoryClasses>
+    <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+      <Id>
+        <TypeId>GuiBlockCategoryDefinition</TypeId>
+        <SubtypeId/>
+      </Id>
+      <DisplayName>MA</DisplayName>
+      <Name>AutoMcD_Astronautical</Name>
+      <ItemIds>
+        <string>WindTurbine/MA_Windmill</string>
+        <string>CubeBlock/MA_Pole</string>
+	    <string>InteriorLight/MA_Lantern</string>
+      </ItemIds>
+    </Category>
+  </CategoryClasses>
+</Definitions>
