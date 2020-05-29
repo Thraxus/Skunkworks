@@ -1,27 +1,23 @@
 ﻿using SkunkWorks.Thraxus.Common.BaseClasses;
+using SkunkWorks.Thraxus.Common.Enums;
+using SkunkWorks.Thraxus.Development;
 using VRage.Game.Components;
 
 namespace SkunkWorks.Thraxus
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
-	public class SkunkWorksCore : BaseServerSessionComp
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
+	public class SkunkWorksCore : BaseSessionComp
 	{
-		private const string SessionName = "SkunkWorksCore";
-		public SkunkWorksCore() : base(SessionName) { }
-
-
-		public override void LoadData()
-		{
-
-			base.LoadData();
-		}
-
-		public override void BeforeStart()
-		{
-
-			base.BeforeStart();
-		}
-
+		protected override string CompName { get; } = "SkunkWorksCore";
 		
+		protected override CompType Type { get; } = CompType.Server;
+		
+		protected override bool NoUpdate { get; } = true;
+		
+		protected override void SuperEarlySetup()
+		{
+			base.SuperEarlySetup();
+			ReplaceInventoryFilterIcons.Run();
+		}
 	}
 }

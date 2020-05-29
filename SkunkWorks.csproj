@@ -13,6 +13,9 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <PropertyGroup>
+   <LangVersion>6</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -150,14 +153,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\BaseClasses\BaseClientSessionComp.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\BaseClasses\BaseGameLogicComp.cs" />
-    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\BaseClasses\BaseServerSessionComp.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\BaseClasses\BaseSessionComp.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\BaseClasses\LogBaseEvent.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Enums\FactionRelationship.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Enums\LogType.cs" />
-    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Enums\SessionCompType.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Enums\CompType.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Interfaces\ILog.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Models\BufferedBinaryReader.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Models\FastQueue.cs" />

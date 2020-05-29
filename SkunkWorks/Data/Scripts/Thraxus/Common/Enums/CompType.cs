@@ -1,8 +1,7 @@
 ﻿namespace SkunkWorks.Thraxus.Common.Enums
 {
-	public enum SessionCompType
+	public enum CompType
 	{
-		None, 
 		Both,
 		Client,
 		Server

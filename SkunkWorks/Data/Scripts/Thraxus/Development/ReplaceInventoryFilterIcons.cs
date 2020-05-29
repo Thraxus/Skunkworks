@@ -5,9 +5,9 @@ using VRage.Utils;
 
 namespace SkunkWorks.Thraxus.Development
 {
-	public class ReplaceInventoryFilterIcons
+	public static class ReplaceInventoryFilterIcons
 	{
-		public void Run()
+		public static void Run()
 		{
 			try
 			{

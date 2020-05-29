@@ -10,10 +10,11 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 {
 	public abstract class BaseSessionComp : MySessionComponentBase, ILog
 	{
-		private readonly string _logName;
-		private readonly string _sessionName;
+		protected abstract string CompName { get; }
 
-		private readonly bool _noUpdate;
+		protected abstract CompType Type { get; }
+
+		protected abstract bool NoUpdate { get; }
 
 		internal long TickCounter;
 
@@ -23,36 +24,32 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		private bool _earlySetupComplete;
 		private bool _lateSetupComplete;
 
-		private readonly bool _blockUpdates;
-
-		protected BaseSessionComp(string sessionName, SessionCompType type, bool noUpdate = true)
+		private bool BlockUpdates()
 		{
-			_sessionName = sessionName;
-			_logName = $"{_sessionName}-General";
-			_noUpdate = noUpdate;
-			switch (type)
+			switch (Type)
 			{
-				case SessionCompType.None:
-					_blockUpdates = false;
-					break;
-				case SessionCompType.Both:
-					_blockUpdates = false;
-					break;
-				case SessionCompType.Client:
-					_blockUpdates = ModSettings.IsServer;
-					break;
-				case SessionCompType.Server:
-					_blockUpdates = !ModSettings.IsServer;
-					break;
+				case CompType.Both:
+					return false;
+				case CompType.Client:
+					return ModSettings.IsServer;
+				case CompType.Server:
+					return !ModSettings.IsServer;
 				default:
-					break;
+					return false;
 			}
 		}
+
+		//protected BaseSessionComp(string compName, CompType type, bool noUpdate)
+		//{
+			//_compName = compName;
+			//_type = type;
+			//_noUpdate = noUpdate;
+		//}
 
 		/// <inheritdoc />
 		public override void LoadData()
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			base.LoadData();
 			if (!_superEarlySetupComplete) SuperEarlySetup();
 		}
@@ -73,18 +70,19 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		protected virtual void SuperEarlySetup()
 		{
 			_superEarlySetupComplete = true;
-			_generalLog = new Log(_logName);
+			_generalLog = new Log(CompName);
+			WriteToLog("SuperEarlySetup", $"Waking up.  Is Server: {ModSettings.IsServer}", LogType.General);
 		}
 
 		public override void BeforeStart()
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			base.BeforeStart();
 		}
 
 		public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			base.Init(sessionComponent);
 			if (!_earlySetupComplete) EarlySetup();
 		}
@@ -92,12 +90,11 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		protected virtual void EarlySetup()
 		{
 			_earlySetupComplete = true;
-			WriteToLog("EarlySetup", $"Waking up.", LogType.General);
 		}
 
 		public override void UpdateBeforeSimulation()
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
 			RunBeforeSimUpdate();
@@ -111,14 +108,14 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		protected virtual void LateSetup()
 		{
 			_lateSetupComplete = true;
-			if (_noUpdate) MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+			if (BlockUpdates()) MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			WriteToLog("LateSetup", $"Fully online.", LogType.General);
 		}
 
 
 		public override void UpdateAfterSimulation()
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			base.UpdateAfterSimulation();
 		}
 
@@ -130,7 +127,7 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		protected virtual void Unload()
 		{
-			if (_blockUpdates) return;
+			if (BlockUpdates()) return;
 			WriteToLog("Unload", $"Retired.", LogType.General);
 			_generalLog?.Close();
 		}
@@ -154,14 +151,14 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		private void WriteException(string caller, string message, bool showOnHud, int duration, string color)
 		{
-			StaticLog.WriteToLog($"{_sessionName}: {caller}", $"Exception! {message}", LogType.Exception, showOnHud, duration, color);
+			StaticLog.WriteToLog($"{CompName}: {caller}", $"Exception! {message}", LogType.Exception, showOnHud, duration, color);
 		}
 
 		private void WriteGeneral(string caller, string message, bool showOnHud, int duration, string color)
 		{
 			lock (_writeLocker)
 			{
-				_generalLog?.WriteToLog($"{_sessionName}: {caller}", message, showOnHud, duration, color);
+				_generalLog?.WriteToLog($"{CompName}: {caller}", message, showOnHud, duration, color);
 			}
 		}
 	}

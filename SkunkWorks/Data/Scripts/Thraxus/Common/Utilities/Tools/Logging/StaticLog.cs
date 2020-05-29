@@ -24,13 +24,15 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
 			base.Init(sessionComponent);
 			_exceptionLog = new Log(ExceptionLogName);
 			_generalLog = new Log(GeneralLogName);
-			WriteToLog("StaticLogger", "Static logs loaded.", LogType.General);
+			WriteToLog("StaticLogger", "Static log loaded.", LogType.General);
+			WriteToLog("StaticLogger", "Exception log loaded.", LogType.Exception);
 		}
 
 		/// <inheritdoc />
 		protected override void UnloadData()
 		{
-			WriteToLog("StaticLogger", "Closing static logs.", LogType.General);
+			WriteToLog("StaticLogger", "Static log closed.", LogType.General);
+			WriteToLog("StaticLogger", "Exception log closed.", LogType.Exception);
 			lock (ExceptionWriteLocker)
 			{
 				_exceptionLog?.Close();
