@@ -11,7 +11,7 @@
       <Icon>Textures\GUI\Icons\Cubes\nuclear_reactor_large.dds</Icon>
       <Description>I make teh powah!</Description>
       <CubeSize>Large</CubeSize>
-      <GuiVisible>false</GuiVisible>
+      <GuiVisible>true</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -78,27 +78,58 @@
     <BlockPosition>
       <Name>ThraxusCustomReactor</Name>
       <Position>
-        <X>0</X>
-        <Y>40</Y>
+        <X>15</X>
+        <Y>4</Y>
       </Position>
     </BlockPosition>
   </BlockPositions>
 
-  <BlockVariantGroup>
-    <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="EnergyFueledGroup" />
-    <Blocks>
-      <Block Type="MyObjectBuilder_Reactor" Subtype="ThraxusCustomReactor" />
-    </Blocks>
-  </BlockVariantGroup>
+  <!--<BlockVariantGroups>
+    <BlockVariantGroup>
+      <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="EnergyFueledGroup" />
+      <Icon>Textures\GUI\Icons\Cubes\nuclear_reactor.dds</Icon>
+      <DisplayName>DisplayName_BlockGroup_EnergyFueledGroup</DisplayName>
+      <Description>Description_BlockGroup_EnergyFueledGroup</Description>
+      <Blocks>
+        <Block Type="MyObjectBuilder_Reactor" Subtype="ThraxusCustomReactor" />
+      </Blocks>
+    </BlockVariantGroup>
+  </BlockVariantGroups>-->
 
   <CategoryClasses>
     <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
       <Id>
         <TypeId>GuiBlockCategoryDefinition</TypeId>
-        <SubtypeId>ThraxusCustoms</SubtypeId>
+        <SubtypeId/>
+      </Id>
+      <DisplayName>DisplayName_Category_LargeBlocks</DisplayName>
+      <Name>LargeBlocks</Name>
+      <StrictSearch>true</StrictSearch>
+      <ItemIds>
+        <string>Reactor/ThraxusCustomReactor</string>
+      </ItemIds>
+    </Category>
+
+    <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+      <Id>
+        <TypeId>GuiBlockCategoryDefinition</TypeId>
+        <SubtypeId/>
+      </Id>
+      <DisplayName>DisplayName_Category_Power</DisplayName>
+      <Name>Power</Name>
+      <ItemIds>
+        <string>Reactor/ThraxusCustomReactor</string>
+      </ItemIds>
+    </Category>
+
+    <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+      <Id>
+        <TypeId>GuiBlockCategoryDefinition</TypeId>
+        <SubtypeId></SubtypeId>
       </Id>
       <DisplayName>Thraxus</DisplayName>
-      <Name>Thraxus Custom Blocks</Name>
+      <Name>Thraxus_Custom_Blocks</Name>
+      <StrictSearch>false</StrictSearch>
       <ItemIds>
         <string>Reactor/ThraxusCustomReactor</string>
       </ItemIds>
@@ -122,25 +153,25 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Reactor/ThraxusCustomReactor" />
   </BlueprintClassEntries>
 
-  <ResearchGroups>
+  <!--<ResearchGroups>
     <ResearchGroup xsi:type="ResearchGroup">
       <Id Type="MyObjectBuilder_ResearchGroupDefinition" Subtype="30" />
       <Members>
-        <BlockId Type="MyObjectBuilder_ReactorDefinition" Subtype="ThraxusCustomReactor" />
+        <BlockId Type="MyObjectBuilder_Reactor" Subtype="ThraxusCustomReactor" />
       </Members>
     </ResearchGroup>
-  </ResearchGroups>
+  </ResearchGroups>-->
 
   <ResearchBlocks>
     <ResearchBlock xsi:type="ResearchBlock">
-      <Id Type="MyObjectBuilder_ReactorDefinition" Subtype="ThraxusCustomReactor" />
+      <Id Type="MyObjectBuilder_Reactor" Subtype="ThraxusCustomReactor" />
       <UnlockedByGroups>
-        <GroupSubtype>0</GroupSubtype>
+        <GroupSubtype>23</GroupSubtype>
       </UnlockedByGroups>
     </ResearchBlock>
   </ResearchBlocks>
 
-  <RadialMenus>
+  <!--<RadialMenus>
     <Id Type="RadialMenu" Subtype="Thraxus" />
     <Sections>
       <Section>
@@ -152,6 +183,6 @@
         </Items>
       </Section>
     </Sections>
-  </RadialMenus>
+  </RadialMenus>-->
 
 </Definitions>

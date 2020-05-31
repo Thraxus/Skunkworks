@@ -11,9 +11,9 @@ namespace SkunkWorks.Thraxus
 		protected override string CompName { get; } = "SkunkWorksCore";
 		
 		protected override CompType Type { get; } = CompType.Server;
-		
-		protected override bool NoUpdate { get; } = true;
-		
+
+		protected override MyUpdateOrder Schedule { get; } = MyUpdateOrder.NoUpdate;
+
 		protected override void SuperEarlySetup()
 		{
 			base.SuperEarlySetup();

@@ -12,7 +12,7 @@ namespace SkunkWorks.Thraxus.Settings
 
 		public const string ChatCommandPrefix = "chatCommand";
 		public const string ExceptionLogName = "Exception";
-		public const string StaticGeneralLogName = "StaticLog-General";
+		public const string StaticGeneralLogName = "StaticLog";
 		public const ushort NetworkId = 16759;
 
 		#region Reference Values

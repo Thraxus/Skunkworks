@@ -14,7 +14,7 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		protected abstract CompType Type { get; }
 
-		protected abstract bool NoUpdate { get; }
+		protected abstract MyUpdateOrder Schedule { get; }
 
 		internal long TickCounter;
 
@@ -38,13 +38,6 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 					return false;
 			}
 		}
-
-		//protected BaseSessionComp(string compName, CompType type, bool noUpdate)
-		//{
-			//_compName = compName;
-			//_type = type;
-			//_noUpdate = noUpdate;
-		//}
 
 		/// <inheritdoc />
 		public override void LoadData()
@@ -94,6 +87,7 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		public override void UpdateBeforeSimulation()
 		{
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate)); // stops the client or server from updating for no reason
 			if (BlockUpdates()) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
@@ -108,7 +102,8 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		protected virtual void LateSetup()
 		{
 			_lateSetupComplete = true;
-			if (BlockUpdates()) MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+			if (UpdateOrder != Schedule)
+				MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(Schedule)); // sets the proper update schedule to the desired schedule
 			WriteToLog("LateSetup", $"Fully online.", LogType.General);
 		}
 
