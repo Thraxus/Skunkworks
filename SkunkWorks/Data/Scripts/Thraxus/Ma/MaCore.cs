@@ -16,12 +16,27 @@ namespace SkunkWorks.Thraxus.Ma
 		protected override CompType Type { get; } = CompType.Server;
 		protected override MyUpdateOrder Schedule { get; } = MyUpdateOrder.NoUpdate;
 
-		private readonly MyConcurrentList<BaseClosableLoggingClass> _generators = new MyConcurrentList<BaseClosableLoggingClass>();
+		private readonly MyConcurrentList<OxyGen> _generators = new MyConcurrentList<OxyGen>();
 
 		protected override void SuperEarlySetup()
 		{
 			base.SuperEarlySetup();
 			MyEntities.OnEntityCreate += OnEntityCreate;
+			MyAPIGateway.Utilities.MessageEntered += ChatMessageHandler;
+		}
+
+		private void ChatMessageHandler(string message, ref bool sendToOthers)
+		{
+			if (!message.StartsWith("go")) return;
+			StartWorking();
+		}
+
+		private void StartWorking()
+		{
+			foreach (OxyGen generator in _generators)
+			{
+				generator.StartWorking();
+			}
 		}
 
 		private void OnEntityCreate(MyEntity ent)
@@ -38,7 +53,8 @@ namespace SkunkWorks.Thraxus.Ma
 		protected override void Unload()
 		{
 			MyEntities.OnEntityCreate -= OnEntityCreate;
-			foreach (BaseClosableLoggingClass generator in _generators)
+			MyAPIGateway.Utilities.MessageEntered -= ChatMessageHandler;
+			foreach (OxyGen generator in _generators)
 			{
 				generator.Close();
 				generator.OnWriteToLog -= WriteToLog;

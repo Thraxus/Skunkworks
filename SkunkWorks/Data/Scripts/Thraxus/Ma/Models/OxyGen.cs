@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using Sandbox.Definitions;
+﻿using System.Text;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI;
@@ -14,7 +11,6 @@ using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRage.Utils;
-using VRageRender;
 
 namespace SkunkWorks.Thraxus.Ma.Models
 {
@@ -40,6 +36,12 @@ namespace SkunkWorks.Thraxus.Ma.Models
 		private const string Speed = "Productivity";
 		private const float BasePowerConsumptionMultiplier = 1f;
 		private const float BaseProductionCapacityMultiplier = 1f;
+		private const float BaseOxyMaxOutput = 1500f;
+		private const float BaseHydroMaxOutput = 3000f;
+
+		private readonly MyDefinitionId _oxyDef = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");
+		private readonly MyDefinitionId _hydroDef = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Hydrogen");
+		private MyResourceSourceComponent Source => _thisCubeBlock.Components.Get<MyResourceSourceComponent>();
 
 		public OxyGen(IMyGasGenerator thisGenerator)
 		{
@@ -52,9 +54,20 @@ namespace SkunkWorks.Thraxus.Ma.Models
 			_thisGenerator.AppendingCustomInfo += AppendingCustomInfo;
 			_thisEntity.AddedToScene += OnAddedToScene;
 			_thisGenerator.OnClose += OnClose;
-			_thisGenerator.AddUpgradeValue("PowerEfficiency", 1f);
-			_thisGenerator.AddUpgradeValue("Effectiveness", 1f);
-			_thisGenerator.AddUpgradeValue("Productivity", 1f);
+			_thisGenerator.AddUpgradeValue(Power, 1f);
+			_thisGenerator.AddUpgradeValue(Yield, 1f);
+			_thisGenerator.AddUpgradeValue(Speed, 1f);
+		}
+
+		public void StartWorking()
+		{
+			_thisGenerator.UseConveyorSystem = true;
+			WriteToLog("DefinedOutput", $"{Source.DefinedOutput}", LogType.General);
+			WriteToLog("CurrentOutput", $"{Source.CurrentOutput}", LogType.General);
+			WriteToLog("Max Oxy Output", $"{Source.MaxOutputByType(_oxyDef)}", LogType.General);
+			WriteToLog("Max Hydro Output", $"{Source.MaxOutputByType(_hydroDef)}", LogType.General);
+			WriteToLog("Group", $"{Source.Group} | {Source.ResourceTypes.Count}", LogType.General);
+			UpdateTerminal();
 		}
 
 		private void OnAddedToScene(MyEntity entity)
@@ -82,12 +95,10 @@ namespace SkunkWorks.Thraxus.Ma.Models
 			}
 			else
 			{
-				var sorter = _thisCubeBlock as IMyTerminalBlock;
-				if (sorter != null)
-				{
-					sorter.ShowOnHUD = !sorter.ShowOnHUD;
-					sorter.ShowOnHUD = !sorter.ShowOnHUD;
-				}
+				IMyTerminalBlock sorter = _thisCubeBlock as IMyTerminalBlock;
+				if (sorter == null) return;
+				sorter.ShowOnHUD = !sorter.ShowOnHUD;
+				sorter.ShowOnHUD = !sorter.ShowOnHUD;
 				return;
 			}
 			_thisCubeBlock.ChangeOwner(ownerId, shareMode == MyOwnershipShareModeEnum.None ? MyOwnershipShareModeEnum.Faction : MyOwnershipShareModeEnum.None);
@@ -104,78 +115,43 @@ namespace SkunkWorks.Thraxus.Ma.Models
 			WriteToLog("Report:", $"I'm alive: {_thisGenerator.EntityId}", LogType.General);
 		}
 
-		//private readonly StringBuilder _detailedInfo = new StringBuilder();
 		private void UpdateInfo(StringBuilder detailedInfo)
 		{
 			detailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RequiredInput));
 			MyValueFormatter.AppendWorkInBestUnit(_thisGenerator.ResourceSink.RequiredInputByType(MyResourceDistributorComponent.ElectricityId), detailedInfo);
 			detailedInfo.AppendFormat("\n\n");
-			//detailedInfo.Append(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Productivity));
-			//detailedInfo.Append(((float)((_thisGenerator.UpgradeValues["Productivity"]) * 100.0)).ToString(" 0"));
 			detailedInfo.Append("Power Efficiency: ");
-			detailedInfo.Append((_thisGenerator.UpgradeValues["PowerEfficiency"] * 100f).ToString(" 0"));
+			detailedInfo.Append(((1f/_thisGenerator.PowerConsumptionMultiplier) * 100f).ToString(" 0"));
 			detailedInfo.Append("%\n");
-			detailedInfo.Append("Production Capacity: ");
-			detailedInfo.Append((_thisGenerator.ProductionCapacityMultiplier * 100.0).ToString(" 0"));
+			detailedInfo.Append("Resource Efficiency: ");
+			detailedInfo.Append(((1f/_thisGenerator.ProductionCapacityMultiplier) * 100.0).ToString(" 0"));
 			detailedInfo.Append("%\n");
-			//detailedInfo.Append(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Effectiveness));
-			//detailedInfo.Append((_thisGenerator.UpgradeValues["Effectiveness"] * 100f).ToString(" 0"));
-			//detailedInfo.Append("%\n");
-			//detailedInfo.Append(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Efficiency));
-			//detailedInfo.Append((_thisGenerator.UpgradeValues["PowerEfficiency"] * 100f).ToString(" 0"));
-			//detailedInfo.Append("%\n\n");
-			WriteToLog("CustomInfo:", $"{detailedInfo}", LogType.General);
-			//return _detailedInfo;
+			detailedInfo.Append("Speed Multiplier: ");
+			detailedInfo.Append((_thisGenerator.UpgradeValues[Speed] * 100.0).ToString(" 0"));
+			detailedInfo.Append("%\n");
 		}
 
 		private readonly object _syncLock = new object();
-
+		
 		private void OnUpgradeValuesChanged()
 		{
 			lock (_syncLock)
 			{
-				//foreach (KeyValuePair<long, MyCubeBlock.AttachedUpgradeModule> attachedUpgrade in _thisCubeBlock.CurrentAttachedUpgradeModules)
-				//{
-				//	WriteToLog("Found:", $"{attachedUpgrade.Value.SlotCount} | {attachedUpgrade.Value.Compatible}", LogType.General);
-
-				//	foreach (KeyValuePair<string, float> upgradeValue in attachedUpgrade.Value.Block.UpgradeValues)
-				//	{
-				//		_thisGenerator.AddUpgradeValue(upgradeValue.Key, upgradeValue.Value);
-				//		WriteToLog("Adding:", $"{upgradeValue.Key} | {upgradeValue.Value}", LogType.General);
-				//	}
-				//}
-
 				float power = 1;
 				_thisGenerator.UpgradeValues.TryGetValue(Power, out power);
-				// Reference: <Modifier>1.2228445</Modifier>
-				// return (float) ((double) base.GetOperationalPowerConsumption() * (1.0 + (double) this.UpgradeValues["Productivity"]) * (1.0 / (double) this.UpgradeValues["PowerEfficiency"]));
 				float yield = 1;
 				_thisGenerator.UpgradeValues.TryGetValue(Yield, out yield);
-				// Reference: <Modifier>1.0905077</Modifier>
-				// float num = (float) result.Amount * this.m_refineryDef.MaterialEfficiency * this.UpgradeValues["Effectiveness"];
-				// this.OutputInventory.AddItems((MyFixedPoint) ((float) blueprintAmount * num), (MyObjectBuilder_Base) newObject);
 				float speed = 1;
 				_thisGenerator.UpgradeValues.TryGetValue(Speed, out speed);
-				// Reference: <Modifier>0.5</Modifier>
 
 				_thisGenerator.PowerConsumptionMultiplier = (BasePowerConsumptionMultiplier / power) * speed * yield; // Power Efficiency
-				_thisGenerator.ProductionCapacityMultiplier = (BaseProductionCapacityMultiplier * (yield > 1 ? yield * 1.25f : yield)) * (speed); // Yield
-				
-				if (_thisGenerator.UpgradeValues.Count <= 0) return;
-				foreach (KeyValuePair<string, float> upgrade in _thisGenerator.UpgradeValues)
-				{
-					WriteToLog("Upgrades:", $"{upgrade}", LogType.General);
-				}
-				WriteToLog("PowerConsumptionMultiplier:", $"{_thisGenerator.PowerConsumptionMultiplier}", LogType.General);
-				WriteToLog("ProductionCapacityMultiplier:", $"{_thisGenerator.ProductionCapacityMultiplier}", LogType.General);
+				_thisGenerator.ProductionCapacityMultiplier = (BaseProductionCapacityMultiplier / (yield >= 1 ? yield : 1) * (speed > 1 ? (speed * 0.15f) + 1 : speed)); // Yield
+
+				Source.SetMaxOutputByType(_oxyDef, BaseOxyMaxOutput * speed);
+				Source.SetMaxOutputByType(_hydroDef, BaseHydroMaxOutput * speed);
+
 				_thisTerminalBlock.RefreshCustomInfo();
 			}
 		}
 	}
 }
-
-
-//protected override float GetOperationalPowerConsumption()
-//{
-//	return base.GetOperationalPowerConsumption() * (1f + base.UpgradeValues["Productivity"]) * (1f / base.UpgradeValues["PowerEfficiency"]);
-//}
