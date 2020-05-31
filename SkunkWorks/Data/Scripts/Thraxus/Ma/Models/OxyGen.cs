@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
@@ -36,8 +38,10 @@ namespace SkunkWorks.Thraxus.Ma.Models
 		private const string Speed = "Productivity";
 		private const float BasePowerConsumptionMultiplier = 1f;
 		private const float BaseProductionCapacityMultiplier = 1f;
-		private const float BaseOxyMaxOutput = 1500f;
-		private const float BaseHydroMaxOutput = 3000f;
+
+		private const float KshDefaultMultiplier = 150f;
+		private readonly float _baseOxyMaxOutput;
+		private readonly float _baseHydroMaxOutput;
 
 		private readonly MyDefinitionId _oxyDef = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Oxygen");
 		private readonly MyDefinitionId _hydroDef = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Hydrogen");
@@ -57,11 +61,25 @@ namespace SkunkWorks.Thraxus.Ma.Models
 			_thisGenerator.AddUpgradeValue(Power, 1f);
 			_thisGenerator.AddUpgradeValue(Yield, 1f);
 			_thisGenerator.AddUpgradeValue(Speed, 1f);
+
+			MyObjectBuilder_OxygenGenerator x = (MyObjectBuilder_OxygenGenerator) _thisGenerator.GetObjectBuilderCubeBlock();
+
+			MyOxygenGeneratorDefinition def = MyDefinitionManager.Static.GetCubeBlockDefinition(x.GetId()) as MyOxygenGeneratorDefinition;
+			if (def == null) return;
+			foreach (MyOxygenGeneratorDefinition.MyGasGeneratorResourceInfo resource in def.ProducedGases)
+			{
+				if (resource.Id == _oxyDef)
+					_baseOxyMaxOutput = KshDefaultMultiplier * resource.IceToGasRatio;
+				if (resource.Id == _hydroDef)
+					_baseHydroMaxOutput = KshDefaultMultiplier * resource.IceToGasRatio;
+			}
 		}
 
 		public void StartWorking()
 		{
 			_thisGenerator.UseConveyorSystem = true;
+			WriteToLog("BaseMaxOxy", $"{_baseOxyMaxOutput}", LogType.General);
+			WriteToLog("BaseMaxHydro", $"{_baseHydroMaxOutput}", LogType.General);
 			WriteToLog("DefinedOutput", $"{Source.DefinedOutput}", LogType.General);
 			WriteToLog("CurrentOutput", $"{Source.CurrentOutput}", LogType.General);
 			WriteToLog("Max Oxy Output", $"{Source.MaxOutputByType(_oxyDef)}", LogType.General);
@@ -147,8 +165,8 @@ namespace SkunkWorks.Thraxus.Ma.Models
 				_thisGenerator.PowerConsumptionMultiplier = (BasePowerConsumptionMultiplier / power) * speed * yield; // Power Efficiency
 				_thisGenerator.ProductionCapacityMultiplier = (BaseProductionCapacityMultiplier / (yield >= 1 ? yield : 1) * (speed > 1 ? (speed * 0.15f) + 1 : speed)); // Yield
 
-				Source.SetMaxOutputByType(_oxyDef, BaseOxyMaxOutput * speed);
-				Source.SetMaxOutputByType(_hydroDef, BaseHydroMaxOutput * speed);
+				Source.SetMaxOutputByType(_oxyDef, _baseOxyMaxOutput * speed);
+				Source.SetMaxOutputByType(_hydroDef, _baseHydroMaxOutput * speed);
 
 				_thisTerminalBlock.RefreshCustomInfo();
 			}
