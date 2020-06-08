@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sandbox.ModAPI;
-using SkunkWorks.Thraxus.Settings;
 using VRage.Game.ModAPI;
 
 namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Networking
 {
 	internal static class ChatHandler
 	{
-		internal const string ChatCommandPrefix = ModSettings.ChatCommandPrefix;
+		internal const string ChatCommandPrefix = Settings.ChatCommandPrefix;
 		private const string HelpPrefix = "help";
 
 		private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
@@ -22,7 +21,7 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Networking
 
 			if (localPlayer.PromoteLevel < MyPromoteLevel.Admin)
 			{
-				Messaging.ShowLocalNotification($"You must be an Administrator to invoke Chat Commands.  Current Rank: {localPlayer.PromoteLevel.ToString()}");
+				Messaging.ShowLocalNotification($"You must be an Administrator to invoke Chat Commands.  Current Rank: {localPlayer.PromoteLevel}");
 				return;
 			}
 

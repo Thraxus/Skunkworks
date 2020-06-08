@@ -3,7 +3,6 @@ using System.IO;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.Models;
 using SkunkWorks.Thraxus.Common.Utilities.Tools.Networking;
-using SkunkWorks.Thraxus.Settings;
 using VRage.Game;
 
 namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
@@ -41,7 +40,7 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
 			TextWriter = null;
 		}
 
-		public void WriteToLog(string caller, string message, bool showOnHud = false, int duration = ModSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		public void WriteToLog(string caller, string message, bool showOnHud = false, int duration = Settings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			BuildLogLine(caller, message);
 			if (!showOnHud) return;

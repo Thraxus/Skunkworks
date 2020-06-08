@@ -1,5 +1,4 @@
 ﻿using SkunkWorks.Thraxus.Common.Enums;
-using SkunkWorks.Thraxus.Settings;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Utils;
@@ -9,8 +8,8 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
 	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, priority: int.MinValue)]
 	internal class StaticLog : MySessionComponentBase
 	{
-		private const string GeneralLogName = ModSettings.StaticGeneralLogName;
-		private const string ExceptionLogName = ModSettings.ExceptionLogName;
+		private const string GeneralLogName = Settings.StaticGeneralLogName;
+		private const string ExceptionLogName = Settings.ExceptionLogName;
 
 		private static Log _generalLog;
 		private static Log _exceptionLog;
@@ -44,7 +43,7 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Tools.Logging
 			base.UnloadData();
 		}
 
-		public static void WriteToLog(string caller, string message, LogType type, bool showOnHud = false, int duration = ModSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		public static void WriteToLog(string caller, string message, LogType type, bool showOnHud = false, int duration = Settings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			switch (type)
 			{

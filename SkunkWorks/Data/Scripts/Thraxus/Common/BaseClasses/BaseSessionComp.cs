@@ -2,7 +2,6 @@
 using SkunkWorks.Thraxus.Common.Enums;
 using SkunkWorks.Thraxus.Common.Interfaces;
 using SkunkWorks.Thraxus.Common.Utilities.Tools.Logging;
-using SkunkWorks.Thraxus.Settings;
 using VRage.Game;
 using VRage.Game.Components;
 
@@ -31,9 +30,9 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 				case CompType.Both:
 					return false;
 				case CompType.Client:
-					return ModSettings.IsServer;
+					return Settings.IsServer;
 				case CompType.Server:
-					return !ModSettings.IsServer;
+					return !Settings.IsServer;
 				default:
 					return false;
 			}
@@ -42,7 +41,11 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		/// <inheritdoc />
 		public override void LoadData()
 		{
-			if (BlockUpdates()) return;
+			if (BlockUpdates())
+			{
+				MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate)); // sets the proper update schedule to the desired schedule
+				return;
+			};
 			base.LoadData();
 			if (!_superEarlySetupComplete) SuperEarlySetup();
 		}
@@ -64,7 +67,7 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		{
 			_superEarlySetupComplete = true;
 			_generalLog = new Log(CompName);
-			WriteToLog("SuperEarlySetup", $"Waking up.  Is Server: {ModSettings.IsServer}", LogType.General);
+			WriteToLog("SuperEarlySetup", $"Waking up.  Is Server: {Settings.IsServer}", LogType.General);
 		}
 
 		public override void BeforeStart()
@@ -87,17 +90,41 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		public override void UpdateBeforeSimulation()
 		{
-			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate)); // stops the client or server from updating for no reason
+			//MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate)); // stops the client or server from updating for no reason
 			if (BlockUpdates()) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
 			RunBeforeSimUpdate();
 		}
 
-		protected virtual void RunBeforeSimUpdate()
+		private void RunBeforeSimUpdate()
 		{
 			TickCounter++;
+			BeforeSimUpdate();
+			if (TickCounter % 2 == 0) BeforeSimUpdate2();
+			if (TickCounter % 5 == 0) BeforeSimUpdate5();
+			if (TickCounter % 10 == 0) BeforeSimUpdate10();
+			if (TickCounter % 20 == 0) BeforeSimUpdate20();
+			if (TickCounter % 30 == 0) BeforeSimUpdate30();
+			if (TickCounter % 60 == 0) BeforeSimUpdate60();
+			if (TickCounter % 100 == 0) BeforeSimUpdate100();
 		}
+		
+		protected virtual void BeforeSimUpdate() { }
+		
+		protected virtual void BeforeSimUpdate2() { }
+		
+		protected virtual void BeforeSimUpdate5() { }
+		
+		protected virtual void BeforeSimUpdate10() { }
+
+		protected virtual void BeforeSimUpdate20() { }
+
+		protected virtual void BeforeSimUpdate30() { }
+
+		protected virtual void BeforeSimUpdate60() { }
+
+		protected virtual void BeforeSimUpdate100() { }
 
 		protected virtual void LateSetup()
 		{
@@ -127,7 +154,7 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 			_generalLog?.Close();
 		}
 
-		public void WriteToLog(string caller, string message, LogType type, bool showOnHud = false, int duration = ModSettings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
+		public void WriteToLog(string caller, string message, LogType type, bool showOnHud = false, int duration = Settings.DefaultLocalMessageDisplayTime, string color = MyFontEnum.Green)
 		{
 			switch (type)
 			{
