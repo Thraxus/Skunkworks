@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>SkunkWorks.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>SkunkWorks.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -41,7 +43,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>SkunkWorks.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -51,7 +53,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>SkunkWorks.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -167,6 +169,8 @@
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\FileHandlers\Load.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\FileHandlers\Save.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Statics\Statics.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Statics\ThrusterCalculations.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Statics\VectorManipulations.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\Log.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Tools\Logging\StaticLog.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Common\Utilities\Tools\Networking\ChatHandler.cs" />
@@ -183,6 +187,9 @@
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Development\ReplaceInventoryFilterIcons.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\GridControlCore.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Controllers\ControllableGrid.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableGyros.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableThruster.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableThrusters.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Thrust\Models\DetailedThruster.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Settings\ModSettings.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Settings\MyCustomIni\ConfigConstants.cs" />
@@ -207,11 +214,11 @@
     <Content Include="SkunkWorks\Thumb.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SkunkWorks.ruleset" />
     <None Include="SkunkWorks\Data\CustomReactor.sbc" />
     <None Include="SkunkWorks\Textures\GUI\Icons\filter_nato.xcf" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Helpers\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Settings\MyCustomXmlToDo\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Support\" />

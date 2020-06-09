@@ -181,12 +181,9 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 			if (closestPlanet == null) return 0;
 			MyGravityProviderComponent myGravityProviderComponent = closestPlanet.Components.Get<MyGravityProviderComponent>();
 			MatrixD worldMatrixRef = _thisEntity.PositionComp.WorldMatrixRef;
-			//MySphericalNaturalGravityComponent naturalGravity = closestPlanet.Components.Get<MySphericalNaturalGravityComponent>();
-			//myGravityProviderComponent.GetWorldGravity(box.Center);
 			return _thisBlock.CubeGrid.Mass * myGravityProviderComponent.GetGravityMultiplier(worldMatrixRef.Translation) * GravityConstant;
 		}
 
 		private const float GravityConstant = 9.81f; 
 	}
 }
-

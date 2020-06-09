@@ -90,7 +90,6 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 
 		public override void UpdateBeforeSimulation()
 		{
-			//MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate)); // stops the client or server from updating for no reason
 			if (BlockUpdates()) return;
 			base.UpdateBeforeSimulation();
 			if (!_lateSetupComplete) LateSetup();
@@ -101,31 +100,31 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 		{
 			TickCounter++;
 			BeforeSimUpdate();
-			if (TickCounter % 2 == 0) BeforeSimUpdate2();
-			if (TickCounter % 5 == 0) BeforeSimUpdate5();
-			if (TickCounter % 10 == 0) BeforeSimUpdate10();
-			if (TickCounter % 20 == 0) BeforeSimUpdate20();
-			if (TickCounter % 30 == 0) BeforeSimUpdate30();
-			if (TickCounter % 60 == 0) BeforeSimUpdate60();
-			if (TickCounter % 100 == 0) BeforeSimUpdate100();
+			if (TickCounter % 2 == 0) BeforeSimUpdate2Ticks();
+			if (TickCounter % 10 == 0) BeforeSimUpdate5Ticks();
+			if (TickCounter % 20 == 0) BeforeSimUpdate10Ticks();
+			if (TickCounter % (Settings.TicksPerSecond / 2) == 0) BeforeSimUpdateHalfSecond();
+			if (TickCounter % Settings.TicksPerSecond == 0) BeforeSimUpdate1Second();
+			if (TickCounter % (Settings.TicksPerSecond * 30) == 0) BeforeSimUpdate30Seconds();
+			if (TickCounter % (Settings.TicksPerMinute) == 0) BeforeSimUpdate1Minute();
 		}
 		
 		protected virtual void BeforeSimUpdate() { }
 		
-		protected virtual void BeforeSimUpdate2() { }
+		protected virtual void BeforeSimUpdate2Ticks() { }
 		
-		protected virtual void BeforeSimUpdate5() { }
+		protected virtual void BeforeSimUpdate5Ticks() { }
 		
-		protected virtual void BeforeSimUpdate10() { }
+		protected virtual void BeforeSimUpdate10Ticks() { }
 
-		protected virtual void BeforeSimUpdate20() { }
+		protected virtual void BeforeSimUpdateHalfSecond() { }
 
-		protected virtual void BeforeSimUpdate30() { }
+		protected virtual void BeforeSimUpdate1Second() { }
 
-		protected virtual void BeforeSimUpdate60() { }
+		protected virtual void BeforeSimUpdate30Seconds() { }
 
-		protected virtual void BeforeSimUpdate100() { }
-
+		protected virtual void BeforeSimUpdate1Minute() { }
+		
 		protected virtual void LateSetup()
 		{
 			_lateSetupComplete = true;
