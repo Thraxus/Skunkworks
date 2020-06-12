@@ -6,12 +6,12 @@ namespace SkunkWorks.Thraxus.Common.BaseClasses
 	{
 		public event Action<BaseClosableClass> OnClose;
 
-		private bool _isClosed;
+		public bool IsClosed;
 
 		public virtual void Close()
 		{
-			if (_isClosed) return;
-			_isClosed = true;
+			if (IsClosed) return;
+			IsClosed = true;
 			OnClose?.Invoke(this);
 		}
 	}

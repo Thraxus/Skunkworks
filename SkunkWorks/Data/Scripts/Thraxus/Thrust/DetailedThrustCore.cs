@@ -1,11 +1,14 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Game;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Enums;
 using SkunkWorks.Thraxus.Thrust.Models;
 using VRage.Collections;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRageMath;
 
 namespace SkunkWorks.Thraxus.Thrust
 {
@@ -51,6 +54,29 @@ namespace SkunkWorks.Thraxus.Thrust
 
 		private void OnEntityCreate(MyEntity ent)
 		{
+
+			//// Demo of adding an inventory with constraints to a block.  
+			//IMyBeacon beacon = ent as IMyBeacon;
+			//if (beacon != null)
+			//{
+			//	if (!beacon.HasInventory)
+			//	{
+			//		MyInventoryConstraint constraint = new MyInventoryConstraint("testConstraint")
+			//		{
+			//			m_useDefaultIcon = false,
+			//			Icon = $@"Textures\GUI\Icons\filter_uranium.dds",
+			//			IsWhitelist = true
+			//		};
+			//		constraint.Add(new MyDefinitionId(typeof(MyObjectBuilder_Component), "InteriorPlate"));
+			//		MyInventoryBase inventory = new MyInventory(5000, Vector3.One, MyInventoryFlags.CanReceive | MyInventoryFlags.CanSend)
+			//		{
+			//			Constraint = constraint
+			//		};
+			//		beacon.Components.Add(inventory);
+			//	}
+			//}
+
+
 			IMyThrust thrust = ent as IMyThrust;
 			if (thrust == null) return;
 			DetailedThruster detailedThrust = new DetailedThruster(thrust);

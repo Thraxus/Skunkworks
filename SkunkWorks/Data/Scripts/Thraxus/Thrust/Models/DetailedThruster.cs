@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems;
@@ -132,6 +133,9 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 			MyValueFormatter.AppendForceInBestUnit(CalculateRequiredLift(), detailedInfo);
 			detailedInfo.Append("\n");
 			detailedInfo.Append($"CalculatedThrustScalar: {CalculatedThrustScalar()} \n");
+			detailedInfo.Append("\n");
+			detailedInfo.Append($"Calculated Max Thrust Raw: {CalculatedMaxThrust()}");
+			detailedInfo.Append("\n");
 			detailedInfo.Append($"Test: {i++} \n");
 		}
 
@@ -182,7 +186,7 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 			MyGravityProviderComponent myGravityProviderComponent = closestPlanet.Components.Get<MyGravityProviderComponent>();
 			MatrixD worldMatrixRef = _thisEntity.PositionComp.WorldMatrixRef;
 			return _thisBlock.CubeGrid.Mass * myGravityProviderComponent.GetGravityMultiplier(worldMatrixRef.Translation) * GravityConstant;
-		}
+			}
 
 		private const float GravityConstant = 9.81f; 
 	}

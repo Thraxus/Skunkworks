@@ -3,7 +3,7 @@ using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Enums;
-using SkunkWorks.Thraxus.GridControl.Controllers;
+using SkunkWorks.Thraxus.GridControl.Models;
 using VRage.Collections;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;

@@ -1,14 +1,10 @@
 ﻿using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
-using SkunkWorks.Thraxus.GridControl.Models;
-using VRage.Collections;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
-namespace SkunkWorks.Thraxus.GridControl.Controllers
+namespace SkunkWorks.Thraxus.GridControl.Models
 {
 	public class ControllableGrid : BaseLoggingClass
 	{
@@ -18,9 +14,6 @@ namespace SkunkWorks.Thraxus.GridControl.Controllers
 		private readonly IMyCubeGrid _thisIGrid;
 		private readonly MyCubeGrid _thisGrid;
 		private readonly IMyShipController _thisController;
-
-		private bool _isClosed;
-
 		private readonly ControllableGyros _controllableGyros;
 		private readonly ControllableThrusters _controllableThrusters;
 
@@ -41,12 +34,12 @@ namespace SkunkWorks.Thraxus.GridControl.Controllers
 		
 		public void Close(IMyEntity entity)
 		{
-			if (_isClosed) return;
-			_isClosed = true;
+			base.Close();
 			_thisGrid.OnClose -= Close;
 			_thisGrid.OnFatBlockAdded -= OnFatBlockAdded;
 			_thisGrid.OnFatBlockRemoved -= OnFatBlockRemoved;
-			Close();
+			_controllableThrusters.Close();
+			_controllableGyros.Close();
 		}
 		
 		private void SetupGrid()

@@ -60,5 +60,21 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Statics
 			}
 			return result;
 		}
+
+		public static float CalculatedThrustScalar(MyThrust thruster, bool inAtmosphere, float planetaryInfluence)
+		{
+			float result = 1f;
+			MyThrustDefinition definition = thruster.BlockDefinition;
+			if (definition.NeedsAtmosphereForInfluence && !inAtmosphere)
+			{
+				result = definition.EffectivenessAtMinInfluence;
+			}
+			else if (Math.Abs(definition.MaxPlanetaryInfluence - definition.MinPlanetaryInfluence) > 0)
+			{
+				float value = (planetaryInfluence - definition.MinPlanetaryInfluence) * definition.InvDiffMinMaxPlanetaryInfluence;
+				result = MathHelper.Lerp(definition.EffectivenessAtMinInfluence, definition.EffectivenessAtMaxInfluence, MathHelper.Clamp(value, 0f, 1f));
+			}
+			return result;
+		}
 	}
 }

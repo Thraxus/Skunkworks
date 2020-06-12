@@ -185,11 +185,14 @@
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\DataTypes\StructExample.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Development\PrefabProfiler.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Development\ReplaceInventoryFilterIcons.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\DataTypes\Enums\PidType.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\DataTypes\Enums\ThrustDirection.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\GridControlCore.cs" />
-    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Controllers\ControllableGrid.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableGrid.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableGyros.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableThruster.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\ControllableThrusters.cs" />
+    <Compile Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Models\PidController.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Thrust\Models\DetailedThruster.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Settings\ModSettings.cs" />
     <Compile Include="SkunkWorks\Data\Scripts\Thraxus\Settings\MyCustomIni\ConfigConstants.cs" />
@@ -219,6 +222,7 @@
     <None Include="SkunkWorks\Textures\GUI\Icons\filter_nato.xcf" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="SkunkWorks\Data\Scripts\Thraxus\GridControl\Controllers\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Helpers\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Settings\MyCustomXmlToDo\" />
     <Folder Include="SkunkWorks\Data\Scripts\Thraxus\Support\" />
