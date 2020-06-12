@@ -14,6 +14,8 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 		private readonly MyThrust _thisThruster;
 		private readonly MyThrustDefinition _thisDefinition;
 		public readonly ThrustDirection ThrustDirection;
+		public float AdjustedMaxThrust;
+
 
 		public ControllableThruster(IMyThrust thisThruster, ThrustDirection thisDirection)
 		{
@@ -36,7 +38,7 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			return _thisThruster.MaxPowerConsumption;
 		}
 
-		public float AdjustedMaxPower(bool inAtmosphere)
+		public float CalculateAdjustedMaxPower(bool inAtmosphere)
 		{
 			return ThrusterCalculations.AdjustedMaxPower(_thisThruster, inAtmosphere);
 		}
@@ -46,14 +48,27 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			return _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier;
 		}
 
-		public float AdjustedMaxThrust(bool inAtmosphere)
+		public float CalculateAdjustedMaxThrust(bool inAtmosphere)
 		{
-			return _thisDefinition.ForceMagnitude* _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere);
+			AdjustedMaxThrust = _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere);
+			return AdjustedMaxThrust;
 		}
 
-		public float AdjustedMaxThrust(bool inAtmosphere, float planetaryInfluence)
+		public float CalculateAdjustedMaxThrust(bool inAtmosphere, float planetaryInfluence)
 		{
-			return _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere, planetaryInfluence);
+			AdjustedMaxThrust = _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere, planetaryInfluence);
+			return AdjustedMaxThrust;
+		}
+
+		public float CurrentThrust()
+		{
+			return _thisIThruster.ThrustOverride;
+		}
+
+		public void SetThrust(float value)
+		{
+			if (value < 0) return;
+			_thisIThruster.ThrustOverride = value;
 		}
 	}
 }
