@@ -128,7 +128,12 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 				if (_maxEffectiveThrust[requiredThrust.Key] > requiredThrust.Value)
 					InsufficientThrustAvailable?.Invoke(requiredThrust.Key);
 				if (_currentlyUtilizedThrust[requiredThrust.Key] < requiredThrust.Value)
+				{
 					IncreaseThrust(requiredThrust.Key, requiredThrust.Value - _currentlyUtilizedThrust[requiredThrust.Key], false);
+					continue;
+				}
+				if (!(_currentlyUtilizedThrust[requiredThrust.Key] > requiredThrust.Value)) continue;
+				DecreaseThrust(requiredThrust.Key, _currentlyUtilizedThrust[requiredThrust.Key] - requiredThrust.Value, false);
 			}
 		}
 
@@ -191,7 +196,7 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			}
 		}
 
-		private void DecreaseThrust(ThrustDirection direction, float value, bool setRequired = true)
+		public void DecreaseThrust(ThrustDirection direction, float value, bool setRequired = true)
 		{
 			if (IsClosed) return;
 			float tmpValue = value;
