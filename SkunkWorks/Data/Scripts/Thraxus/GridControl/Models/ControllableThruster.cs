@@ -45,21 +45,9 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 
 		public float MaxThrust()
 		{
-			return _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier;
+			return _thisIThruster.MaxEffectiveThrust;
 		}
-
-		public float CalculateAdjustedMaxThrust(bool inAtmosphere)
-		{
-			AdjustedMaxThrust = _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere);
-			return AdjustedMaxThrust;
-		}
-
-		public float CalculateAdjustedMaxThrust(bool inAtmosphere, float planetaryInfluence)
-		{
-			AdjustedMaxThrust = _thisDefinition.ForceMagnitude * _thisIThruster.ThrustMultiplier * ThrusterCalculations.CalculatedThrustScalar(_thisThruster, inAtmosphere, planetaryInfluence);
-			return AdjustedMaxThrust;
-		}
-
+		
 		public float CurrentThrust()
 		{
 			return _thisIThruster.ThrustOverride;

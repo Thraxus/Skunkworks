@@ -2,8 +2,12 @@
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using VRage.Game;
+using VRage.Game.Utils;
 using VRage.ModAPI;
+using VRage.Render.Scene;
 using VRageMath;
+using VRageRender;
 
 namespace SkunkWorks.Thraxus.Common.Utilities.Statics
 {
@@ -28,6 +32,8 @@ namespace SkunkWorks.Thraxus.Common.Utilities.Statics
 			if (closestPlanet == null) return 0;
 			MyGravityProviderComponent myGravityProviderComponent = closestPlanet.Components.Get<MyGravityProviderComponent>();
 			return closestPlanet.GetAirDensity(box.Center) * myGravityProviderComponent.GetGravityMultiplier(box.Center);
+			//MySimpleObjectDraw
+			//billboa
 		}
 
 		public static float CalculatedMaxThrust(MyThrust thruster, bool inAtmosphere)

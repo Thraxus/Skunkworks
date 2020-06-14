@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Sandbox.Definitions;
-using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
 using VRage.Game;
@@ -30,6 +26,8 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 		private readonly MyCubeBlock _thisBlock;
 		private readonly IMyCubeBlock _thisIBlock;
 		private readonly MyThrustDefinition _thisThrustDefinition;
+		private readonly IMyCubeGrid _thisIGrid;
+		private readonly MyCubeGrid _thisGrid;
 
 		private MyResourceSinkComponent MySink => ((MyResourceSinkComponent)_thisIThrust.ResourceSink);
 
@@ -46,9 +44,9 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 			_thisTerminal = (IMyTerminalBlock) thruster;
 			_thisBlock = (MyCubeBlock) thruster;
 			_thisIBlock = (IMyCubeBlock) thruster;
+			_thisIGrid = _thisBlock.CubeGrid;
+			_thisGrid = _thisBlock.CubeGrid;
 			_thisThrustDefinition = _thisThrust.BlockDefinition;
-			
-			
 			_thisEntity.AddedToScene += OnAddedToScene;
 		}
 
@@ -120,11 +118,17 @@ namespace SkunkWorks.Thraxus.Thrust.Models
 			detailedInfo.Append($"Adjusted Max Power: ");
 			MyValueFormatter.AppendWorkInBestUnit(AdjustedMaxPower(), detailedInfo);
 			detailedInfo.Append("\n");
+			detailedInfo.Append($"Block Provided Max Power: ");
+			MyValueFormatter.AppendWorkInBestUnit(_thisIThrust.PowerConsumptionMultiplier * _thisThrust.MaxPowerConsumption, detailedInfo);
+			detailedInfo.Append("\n");
 			detailedInfo.Append($"Current Power: ");
 			MyValueFormatter.AppendWorkInBestUnit(CalculatedCurrentPower(), detailedInfo);
 			detailedInfo.Append("\n");
 			detailedInfo.Append($"Calculated Max Thrust: ");
 			MyValueFormatter.AppendForceInBestUnit(CalculatedMaxThrust(), detailedInfo);
+			detailedInfo.Append("\n");
+			detailedInfo.Append($"Block Given Max Thrust: ");
+			MyValueFormatter.AppendForceInBestUnit(_thisIThrust.MaxEffectiveThrust, detailedInfo);
 			detailedInfo.Append("\n");
 			detailedInfo.Append($"Current Thrust: ");
 			MyValueFormatter.AppendForceInBestUnit(_thisIThrust.CurrentThrust, detailedInfo);

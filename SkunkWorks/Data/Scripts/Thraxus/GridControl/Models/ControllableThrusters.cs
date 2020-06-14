@@ -6,11 +6,15 @@ using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Utilities.Statics;
 using SkunkWorks.Thraxus.GridControl.DataTypes.Enums;
 using VRage.Collections;
+using VRageRender.Messages;
 
 namespace SkunkWorks.Thraxus.GridControl.Models
 {
 	public class ControllableThrusters : BaseLoggingClass
 	{
+
+		// TODO: Add a balanced option that distributes the force to all thrusters, not just one
+		//			One just makes it easier to debug since i can still fly a ship manually, will likely use balanced for release
 		protected override string Id { get; } = "ControllableThrusters";
 
 		private readonly MyConcurrentDictionary<ThrustDirection, ConcurrentCachingList<ControllableThruster>> _thrusters = new MyConcurrentDictionary<ThrustDirection, ConcurrentCachingList<ControllableThruster>>();
@@ -32,30 +36,18 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			{ ThrustDirection.Left, 0 },
 			{ ThrustDirection.Right, 0 },
 		};
-		private readonly MyConcurrentDictionary<ThrustDirection, float> _currentlyRequiredThrust = new MyConcurrentDictionary<ThrustDirection, float>()
-		{
-			{ ThrustDirection.Forward, 0 },
-			{ ThrustDirection.Back, 0 },
-			{ ThrustDirection.Up, 0 },
-			{ ThrustDirection.Down, 0 },
-			{ ThrustDirection.Left, 0 },
-			{ ThrustDirection.Right, 0 },
-		};
 
-		private readonly IMyShipController _thisController;
-
+		private readonly IMyShipController _thisIController;
+		private readonly MyShipController _thisController;
 
 		public event Action<ThrustDirection> InsufficientThrustAvailable;
-
-		private bool _thrustCalculationDirty;
-		private long _lastUpdateTick;
-		private float _planetaryInfluence;
-		private long _thrustRecalculationLimit = Common.Settings.TicksPerSecond * 5;
 		
-
 		public ControllableThrusters(IMyShipController controller)
 		{
-			_thisController = controller;
+			_thisIController = controller;
+			_thisController = (MyShipController) controller;
+			_thisController.ControlThrusters = true;
+			controller.GetNaturalGravity();
 			_thrusters.Add(ThrustDirection.Forward, new ConcurrentCachingList<ControllableThruster>());
 			_thrusters.Add(ThrustDirection.Back, new ConcurrentCachingList<ControllableThruster>());
 			_thrusters.Add(ThrustDirection.Up, new ConcurrentCachingList<ControllableThruster>());
@@ -66,24 +58,24 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 
 		public void AddNewThruster(MyThrust myThrust)
 		{
-			if (myThrust == null || _thisController == null) return;
+			if (myThrust == null || _thisIController == null) return;
 			ControllableThruster thruster = null;
-			if (_thisController.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
+			if (_thisIController.WorldMatrix.Forward * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Forward);
-			if (_thisController.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
+			if (_thisIController.WorldMatrix.Backward * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Back);
-			if(_thisController.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
+			if(_thisIController.WorldMatrix.Left * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Left);
-			if(_thisController.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
+			if(_thisIController.WorldMatrix.Right * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Right);
-			if(_thisController.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
+			if(_thisIController.WorldMatrix.Up * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Up);
-			if (_thisController.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
+			if (_thisIController.WorldMatrix.Down * -1 == myThrust.WorldMatrix.Forward)
 				thruster = new ControllableThruster(myThrust, ThrustDirection.Down);
 			if (thruster == null) return;
 			thruster.OnClose += CloseThruster;
 			_thrusters[thruster.ThrustDirection].Add(thruster);
-			_thrustCalculationDirty = true;
+			RecalculateMaxEffectiveThrust();
 		}
 
 		private void CloseThruster(BaseClosableClass thruster)
@@ -91,53 +83,38 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			thruster.OnClose -= CloseThruster;
 			ControllableThruster closedThruster = (ControllableThruster) thruster;
 			_thrusters[closedThruster.ThrustDirection].Remove(closedThruster);
-			_thrustCalculationDirty = true;
+			RecalculateMaxEffectiveThrust();
 		}
 
-		private void SetPlanetaryInfluence()
-		{
-			_planetaryInfluence = ThrusterCalculations.PlanetaryInfluence(_thisController);
-		}
-
-		public void RecalculateMaxEffectiveThrust(long tick)
+		public void RecalculateMaxEffectiveThrust()
 		{
 			if (IsClosed) return;
-			if (tick - _lastUpdateTick < _thrustRecalculationLimit) _thrustCalculationDirty = true;
-			if (!_thrustCalculationDirty) return;
-			_lastUpdateTick = tick;
-			ResetMaxThrust();
+			ResetMaxEffectiveThrust();
 			ResetUtilizedThrust();
-			SetPlanetaryInfluence();
-			bool inAtmosphere = _planetaryInfluence > 0;
 			foreach (KeyValuePair<ThrustDirection, ConcurrentCachingList<ControllableThruster>> thrusterType in _thrusters)
 			{
 				foreach (ControllableThruster thruster in thrusterType.Value)
 				{
-					_maxEffectiveThrust[thruster.ThrustDirection] += thruster.CalculateAdjustedMaxThrust(inAtmosphere, _planetaryInfluence);
+					_maxEffectiveThrust[thruster.ThrustDirection] += thruster.MaxThrust();
 					_currentlyUtilizedThrust[thruster.ThrustDirection] += thruster.CurrentThrust();
 				}
 			}
-			ValidateRequiredThrust();
-			_thrustCalculationDirty = false;
+			RecalculateUtilizedThrust();
 		}
-
-		private void ValidateRequiredThrust()
+		
+		private void RecalculateUtilizedThrust()
 		{
-			foreach (KeyValuePair<ThrustDirection, float> requiredThrust in _currentlyRequiredThrust)
+			ResetUtilizedThrust();
+			foreach (KeyValuePair<ThrustDirection, ConcurrentCachingList<ControllableThruster>> thrust in _thrusters)
 			{
-				if (_maxEffectiveThrust[requiredThrust.Key] > requiredThrust.Value)
-					InsufficientThrustAvailable?.Invoke(requiredThrust.Key);
-				if (_currentlyUtilizedThrust[requiredThrust.Key] < requiredThrust.Value)
+				foreach (ControllableThruster thruster in thrust.Value)
 				{
-					IncreaseThrust(requiredThrust.Key, requiredThrust.Value - _currentlyUtilizedThrust[requiredThrust.Key], false);
-					continue;
+					_currentlyUtilizedThrust[thrust.Key] += thruster.CurrentThrust();
 				}
-				if (!(_currentlyUtilizedThrust[requiredThrust.Key] > requiredThrust.Value)) continue;
-				DecreaseThrust(requiredThrust.Key, _currentlyUtilizedThrust[requiredThrust.Key] - requiredThrust.Value, false);
 			}
 		}
 
-		private void ResetMaxThrust()
+		private void ResetMaxEffectiveThrust()
 		{
 			_maxEffectiveThrust[ThrustDirection.Forward] = 0;
 			_maxEffectiveThrust[ThrustDirection.Back] = 0;
@@ -157,66 +134,65 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			_currentlyUtilizedThrust[ThrustDirection.Right] = 0;
 		}
 		
-		private void ResetRequiredThrust()
-		{
-			_currentlyRequiredThrust[ThrustDirection.Forward] = 0;
-			_currentlyRequiredThrust[ThrustDirection.Back] = 0;
-			_currentlyRequiredThrust[ThrustDirection.Up] = 0;
-			_currentlyRequiredThrust[ThrustDirection.Down] = 0;
-			_currentlyRequiredThrust[ThrustDirection.Left] = 0;
-			_currentlyRequiredThrust[ThrustDirection.Right] = 0;
-		}
-
-		private float GetMaxEffectiveThrust(ThrustDirection direction)
+		public float GetMaxEffectiveThrustInDirection(ThrustDirection direction)
 		{
 			return _maxEffectiveThrust[direction];
 		}
+		
+		public void SetThrust(ThrustDirection direction, float value)
+		{
+			SetRollingThrust(direction, value);
+		}
 
-		private void IncreaseThrust(ThrustDirection direction, float value, bool setRequired = true)
+		private void SetRollingThrust(ThrustDirection direction, float value)
 		{
 			if (IsClosed) return;
 			float tmpValue = value;
-			if (setRequired) _currentlyRequiredThrust[direction] += value;
-			if (GetMaxEffectiveThrust(direction) - _currentlyUtilizedThrust[direction] > value) InsufficientThrustAvailable?.Invoke(direction);
+			_currentlyUtilizedThrust[direction] = 0;
 			foreach (ControllableThruster thruster in _thrusters[direction])
 			{
-				float thrustRemaining = thruster.AdjustedMaxThrust - thruster.CurrentThrust();
-				if (thrustRemaining <= 0) continue;
-				if (thrustRemaining > tmpValue)
+				if (Math.Abs(value) <= 0)
+				{
+					thruster.SetThrust(0);
+					continue;
+				}
+
+				float availableThrust = thruster.MaxThrust() - thruster.CurrentThrust();
+				if (availableThrust <= 0)
+					continue;
+
+				if (availableThrust > tmpValue)
 				{
 					thruster.SetThrust(thruster.CurrentThrust() + tmpValue);
-					_currentlyUtilizedThrust[direction] += thruster.CurrentThrust();
-					break;
+					tmpValue = 0;
 				}
-				thruster.SetThrust(thruster.CurrentThrust() + thrustRemaining);
-				_currentlyUtilizedThrust[direction] += thruster.CurrentThrust();
-				tmpValue -= thrustRemaining;
+				else
+				{
+					thruster.SetThrust(thruster.MaxThrust());
+					tmpValue -= thruster.MaxThrust();
+				}
 				if (tmpValue > 0) continue;
-				break;
+				thruster.SetThrust(0);
 			}
+			if (tmpValue > 0) 
+			{
+				InsufficientThrustAvailable?.Invoke(direction);
+				_currentlyUtilizedThrust[direction] = value - tmpValue;
+				return;
+			}
+			_currentlyUtilizedThrust[direction] = value;
 		}
 
-		public void DecreaseThrust(ThrustDirection direction, float value, bool setRequired = true)
+		private void SetBalancedThrust(ThrustDirection direction, float value)
 		{
 			if (IsClosed) return;
-			float tmpValue = value;
-			if (setRequired) _currentlyRequiredThrust[direction] -= value;
-			if (_currentlyRequiredThrust[direction] < 0) _currentlyRequiredThrust[direction] = 0;
+			if (_maxEffectiveThrust[direction] - _currentlyUtilizedThrust[direction] > value) InsufficientThrustAvailable?.Invoke(direction);
 			foreach (ControllableThruster thruster in _thrusters[direction])
 			{
-				float currentThrust = thruster.CurrentThrust();
-				if (currentThrust <= 0) continue;
-				if (currentThrust >= tmpValue)
-				{
-					thruster.SetThrust(currentThrust - tmpValue);
-					_currentlyUtilizedThrust[direction] -= currentThrust - tmpValue;
-					break;
-				}
-				thruster.SetThrust(0);
-				tmpValue -= currentThrust;
-				if (tmpValue > 0) continue;
-				break;
+				thruster.SetThrust(value / _thrusters[direction].Count);
 			}
+			_currentlyUtilizedThrust[direction] = value;
 		}
+
 	}
 }
