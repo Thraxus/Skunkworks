@@ -2,12 +2,8 @@
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using VRage.Game;
-using VRage.Game.Utils;
 using VRage.ModAPI;
-using VRage.Render.Scene;
 using VRageMath;
-using VRageRender;
 
 namespace SkunkWorks.Thraxus.Common.Utilities.Statics
 {

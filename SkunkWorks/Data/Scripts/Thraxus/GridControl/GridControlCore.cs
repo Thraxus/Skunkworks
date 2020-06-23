@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Sandbox.Game.Entities;
+﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Enums;
@@ -11,6 +10,7 @@ using VRage.ModAPI;
 
 namespace SkunkWorks.Thraxus.GridControl
 {
+	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation, priority: int.MinValue + 1)]
 	public class GridControlCore : BaseSessionComp
 	{
 		protected override string CompName { get; } = "GridControlCore";
@@ -43,9 +43,11 @@ namespace SkunkWorks.Thraxus.GridControl
 				mainControl = controller;
 			}
 			if (mainControl == null) return;
+			WriteToLog("RegisterNewGrid", $"Registering new grid: {mainControl.CubeGrid.DisplayName}", LogType.General);
 			ControllableGrid controllableGrid = new ControllableGrid(grid, mainControl);
 			controllableGrid.OnWriteToLog += WriteToLog;
 			controllableGrid.OnClose += OnGridClose;
+			controllableGrid.SetupGrid();
 			_grids.Add(controllableGrid);
 			_grids.ApplyAdditions();
 		}
@@ -73,6 +75,15 @@ namespace SkunkWorks.Thraxus.GridControl
 			_grids.ClearList();
 			// Unload code above base
 			base.Unload();
+		}
+
+		protected override void BeforeSimUpdate()
+		{
+			base.BeforeSimUpdate();
+			foreach (ControllableGrid grid in _grids)
+			{
+				grid.Update(TickCounter);
+			}
 		}
 	}
 }

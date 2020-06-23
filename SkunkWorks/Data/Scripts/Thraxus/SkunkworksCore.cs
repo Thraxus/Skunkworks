@@ -1,14 +1,7 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Game;
-using SkunkWorks.Thraxus.Common.BaseClasses;
+﻿using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Enums;
 using SkunkWorks.Thraxus.Development;
-using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.Entity;
-using VRage.Game.ObjectBuilders.ComponentSystem;
-using VRageMath;
 
 namespace SkunkWorks.Thraxus
 {

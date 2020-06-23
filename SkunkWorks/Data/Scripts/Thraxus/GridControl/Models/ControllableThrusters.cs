@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
-using SkunkWorks.Thraxus.Common.Utilities.Statics;
 using SkunkWorks.Thraxus.GridControl.DataTypes.Enums;
+using SkunkWorks.Thraxus.GridControl.Interfaces;
 using VRage.Collections;
-using VRageRender.Messages;
 
 namespace SkunkWorks.Thraxus.GridControl.Models
 {
-	public class ControllableThrusters : BaseLoggingClass
+	public class ControllableThrusters : BaseLoggingClass, IUpdate
 	{
 
 		// TODO: Add a balanced option that distributes the force to all thrusters, not just one
@@ -141,6 +140,37 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 		
 		public void SetThrust(ThrustDirection direction, float value)
 		{
+			if (Math.Sign(value) < 0)
+			{
+				value = Math.Abs(value);
+				// If we're requesting negative thrust on this axis, then any 
+				//	thrust on this axis in the requested direction needs to be nullified
+				// Remember, this is a set, not an accumulated value
+				SetThrust(direction, 0); 
+				switch (direction)
+				{
+					case ThrustDirection.Up:
+						direction = ThrustDirection.Down;
+						break;
+					case ThrustDirection.Down:
+						direction = ThrustDirection.Up;
+						break;
+					case ThrustDirection.Left:
+						direction = ThrustDirection.Right;
+						break;
+					case ThrustDirection.Right:
+						direction = ThrustDirection.Left;
+						break;
+					case ThrustDirection.Forward:
+						direction = ThrustDirection.Back;
+						break;
+					case ThrustDirection.Back:
+						direction = ThrustDirection.Forward;
+						break;
+					default:
+						return; // something is broken if this ever happens, so... ignore it. 
+				}
+			}
 			SetRollingThrust(direction, value);
 		}
 
@@ -194,5 +224,9 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			_currentlyUtilizedThrust[direction] = value;
 		}
 
+		public void Update(long tick)
+		{
+			
+		}
 	}
 }

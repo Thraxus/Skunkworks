@@ -10,27 +10,47 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 		// https://www.habrador.com/tutorials/pid-controller/3-stabilize-quadcopter/
 		// https://www.habrador.com/tutorials/math/3-turn-left-or-right/
 		// https://blog.habrador.com/2015/11/explaining-hybrid-star-pathfinding.html
+		// http://robotsforroboticists.com/pid-control/
 
-		public double Kp = 1; // Proportional Gain
-		public double Ki = 0; // Integral Gain
+		public double Kp = 2;	// Proportional Gain
+		public double Ki = 0;	// Integral Gain
 		public double Kd = 0.01; // Derivative Gain
 
 		private long _stepLength = 5; // Ticks between recalculations
 		private long _totalSteps; // How many times has this run
 
 		private readonly Queue<double> _pastErrorQueue = new Queue<double>(3);
-		
-		private const double GyroClampMax = 1;
-		private const double GyroClampMin = 0;
 
+		private double _previousIntegral = 0;
+
+		private double _bias = 0;
+		
+		// Limits if desired (stops gains from exceeding some number)
+		private double _limitMax;
+		private double _limitMin;
+
+		// Dead band if desired (when it gets here, just assume 0)
+		private double _deadMax;
+		private double _deadMin;
+
+		// defaults, should be set proper though
+		private const double GyroClampMax = 1f;
+		private const double GyroClampMin = -1f;
+
+		// defaults, should be set proper though
 		private const double ThrusterClampMax = float.MaxValue;
 		private const double ThrusterClampMin = float.MinValue;
+
+		private double _max;
+		private double _min;
 
 		private readonly PidType _type;
 
 		public PidController(PidType type)
 		{
 			_type = type;
+			_max = type == PidType.Gyro ? GyroClampMax : ThrusterClampMax;
+			_min = type == PidType.Gyro ? GyroClampMin : ThrusterClampMin;
 		}
 
 		public void Reset()
@@ -52,23 +72,32 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 			Kd = kd;
 		}
 
-		private double Output(double error)
+		public void SetLimits(double max, double min)
 		{
-			double output = 0;
+			_max = max;
+			_min = min;
+		}
+
+		private double Output(double error, bool useDeadBand = false, bool enforceLimit = false)
+		{
 			double pastErrors = AverageSumPastErrors();
 			
-			//P
-			output += Kp * error;
+			// I
+			double integral = _previousIntegral + (error * _stepLength);
+			
+			// D
+			double derivative = (error - pastErrors) / _stepLength;
 
-			//I
-			output += Ki * Clamp(error * _stepLength);
-
-			//D
-			output += (error - pastErrors) / _stepLength;
+			// P
+			double output = Kp * error + (Ki * integral) + (Kd * derivative) + _bias;
 
 			_pastErrorQueue.Enqueue(error);
+			_previousIntegral = integral;
 			_totalSteps++;
-			return output;
+
+			if (useDeadBand && enforceLimit) return IsBetween(output, _deadMax, _deadMin) ? 0 : Clamp(output, _limitMax, _limitMin);
+			if (useDeadBand) return IsBetween(output, _deadMax, _deadMin) ? 0 : output;
+			return enforceLimit ? Clamp(output, _limitMax, _limitMin) : output;
 		}
 		
 		private double AverageSumPastErrors()
@@ -86,8 +115,17 @@ namespace SkunkWorks.Thraxus.GridControl.Models
 		
 		private double Clamp(double value)
 		{
-			if (_type == PidType.Gyro) return value > GyroClampMax ? GyroClampMax : value < GyroClampMin ? GyroClampMin : value;
-			return value > ThrusterClampMax ? ThrusterClampMax : value < ThrusterClampMin ? ThrusterClampMin : value;
+			return value > _max ? _max : value < _min ? _min : value;
+		}
+
+		private static double Clamp(double value, double max, double min)
+		{
+			return value > max ? max : value < min ? min : value;
+		}
+
+		private static bool IsBetween(double value, double max, double min)
+		{
+			return value > min && value < max;
 		}
 	}
 }

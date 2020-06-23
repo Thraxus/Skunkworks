@@ -1,14 +1,11 @@
-﻿using Sandbox.Game;
-using Sandbox.Game.Entities;
+﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SkunkWorks.Thraxus.Common.BaseClasses;
 using SkunkWorks.Thraxus.Common.Enums;
 using SkunkWorks.Thraxus.Thrust.Models;
 using VRage.Collections;
-using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
-using VRageMath;
 
 namespace SkunkWorks.Thraxus.Thrust
 {
